@@ -1,0 +1,37 @@
+services:
+  my-java-app:
+    depends_on:
+      mysql:
+        condition: service_healthy
+    image: 165.22.187.117:8083/my-java-app:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_USER=root
+      - DB_PWD=password
+      - DB_SERVER=mysql
+      - DB_NAME=users
+  mysql:
+    image: mysql:26.7.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=users
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - PMA_PORT=3306
+      - PMA_HOST=mysql
+volumes:
+  mysql-data:
